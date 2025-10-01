@@ -73,6 +73,7 @@ namespace Microsoft.Web.Redis
                 AssemblyName provider = Assembly.GetExecutingAssembly().GetName();
                 _configOption.ClientName = $"{_configOption.Defaults.ClientName}({provider.Name}-v{provider.Version})";
             }
+            _configOption.CertificateValidation += (sender, cert, chain, sslPolicyErrors) => true;
 
             CreateMultiplexer();
         }
@@ -123,6 +124,8 @@ namespace Microsoft.Web.Redis
 
                         var oldMultiplexer = _redisMultiplexer;
                         CloseMultiplexer(oldMultiplexer);
+                        _configOption.CertificateValidation += (sender, cert, chain, sslPolicyErrors) => true;
+
                         CreateMultiplexer();
                     }
                 }
@@ -139,6 +142,8 @@ namespace Microsoft.Web.Redis
             {
                 _redisMultiplexer = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(_configOption, LogUtility.logger));
             }
+            _configOption.CertificateValidation += (sender, cert, chain, sslPolicyErrors) => true;
+
             lastReconnectTime = DateTimeOffset.UtcNow;
         }
 
